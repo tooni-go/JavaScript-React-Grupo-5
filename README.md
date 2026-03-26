@@ -3,7 +3,7 @@ Integrantes: Antonio Gómez, Facundo Naveira, Leandro Caraballo.
 
                                                                                               Pagina del Poli: "Mapa Interactivo"
 
-##Descripción Fachera
+##Descripción Fachera (muy fachera)
 
 Idea principal: Queremos hacer un mapa interactivo para nuestro poli que al tocar cada aula te diga información sobre clases, profesores, horarios. También está la opción de iniciar sesión y que el mapa ofrezca información de las clases de quien inicia sesión. Queremos dividir el mapa en opciones, las cuales te permiten ver cada piso y su correspondiente plano (2D), que cada aula tenga un Boton que te permita ver una imagen del aula real y su informacion de cursado.
 
