@@ -11,3 +11,7 @@ yarn-error.log*
 .next/
 out/
 build/
+
+# Planificación y prompts
+plan.md
+prompts/
