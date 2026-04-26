@@ -14,12 +14,14 @@ export default async function DashboardPage() {
             Este es tu panel de control protegido.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg bg-slate-100 p-4">
-            <h3 className="font-semibold text-slate-800">Información de Sesión</h3>
-            <pre className="mt-2 overflow-auto text-xs text-slate-600">
-              {JSON.stringify(session, null, 2)}
-            </pre>
+        <CardContent>
+          <div className="rounded-lg border bg-slate-50 p-8 text-center">
+            <h3 className="text-lg font-medium text-slate-900">
+              Has ingresado correctamente al sistema.
+            </h3>
+            <p className="mt-2 text-slate-500">
+              Pronto podrás visualizar aquí el mapa interactivo de las aulas y horarios.
+            </p>
           </div>
         </CardContent>
       </Card>
