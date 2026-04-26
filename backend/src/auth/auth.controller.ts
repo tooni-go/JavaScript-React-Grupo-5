@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { AtGuard } from '../common/guards/at.guard';
 import { RtGuard } from '../common/guards/rt.guard';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
