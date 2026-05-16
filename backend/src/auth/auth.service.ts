@@ -40,12 +40,20 @@ export class AuthService {
   }
 
   async logout(userId: string, rt: string) {
-    await this.prisma.refreshToken.deleteMany({
-      where: {
-        userId,
-        token: rt,
-      },
-    });
+    if (rt) {
+      await this.prisma.refreshToken.deleteMany({
+        where: {
+          userId,
+          token: rt,
+        },
+      });
+    } else {
+      // Si no se proporciona un Refresh Token específico, borramos todos los del usuario
+      // para asegurar el cierre de sesión en todos los dispositivos o asegurar la limpieza.
+      await this.prisma.refreshToken.deleteMany({
+        where: { userId },
+      });
+    }
   }
 
   async refreshTokens(userId: string, rt: string) {

@@ -13,15 +13,22 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  password      String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                 String         @id @default(uuid())
+  email              String         @unique
+  password           String
+  nombre             String?        @default("Usuario")
+  rol                String         @default("ESTUDIANTE") // "PROFESOR", "ESTUDIANTE", "SUPERADMIN"
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   
   // Relations
-  refreshTokens RefreshToken[]
-  classes       Class[]        @relation("UserClasses")
+  refreshTokens      RefreshToken[]
+  perfilProfesor     Profesor?
+  asignaciones       Asignacion[]
+  cursoId            Int?
+  curso              Curso?         @relation(fields: [cursoId], references: [id])
+  charlasOrganizadas Charla[]       @relation("OrganizadorCharlas")
+  charlasAsiste      Charla[]       @relation("ParticipantesCharlas")
 }
 
 model RefreshToken {
@@ -33,29 +40,67 @@ model RefreshToken {
   createdAt DateTime @default(now())
 }
 
-model Class {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
+model Profesor {
+  id           Int      @id @default(autoincrement())
+  especialidad String
+  biografia    String?
   
-  // Relations
-  classroomId String?
-  classroom   Classroom? @relation(fields: [classroomId], references: [id])
-  students    User[]    @relation("UserClasses")
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  userId       String   @unique
+  usuario      User     @relation(fields: [userId], references: [id])
 }
 
-model Classroom {
-  id        String   @id @default(uuid())
-  name      String
-  building  String?
-  floor     Int?
-  
-  // Relations
-  classes   Class[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Curso {
+  id           Int          @id @default(autoincrement())
+  nombre       String       // Ej: "6to 4ta"
+  estudiantes  User[]
+  asignaciones Asignacion[]
+}
+
+model Materia {
+  id           Int          @id @default(autoincrement())
+  nombre       String       // Ej: "Programación"
+  asignaciones Asignacion[]
+}
+
+model Aula {
+  id           Int          @id @default(autoincrement())
+  nombre       String       // Ej: "Laboratorio 1"
+  piso         Int
+  asignaciones Asignacion[]
+  charlas      Charla[]
+}
+
+model Asignacion {
+  id          Int      @id @default(autoincrement())
+  diaSemana   String   // Ej: "Lunes"
+  horaInicio  String   // Ej: "07:30"
+  horaFin     String   // Ej: "12:00"
+
+  profesorId  String
+  profesor    User     @relation(fields: [profesorId], references: [id])
+
+  cursoId     Int
+  curso       Curso    @relation(fields: [cursoId], references: [id])
+
+  materiaId   Int
+  materia     Materia  @relation(fields: [materiaId], references: [id])
+
+  aulaId      Int
+  aula        Aula     @relation(fields: [aulaId], references: [id])
+}
+
+model Charla {
+  id            Int          @id @default(autoincrement())
+  titulo        String       // Ej: "Introducción a la IA"
+  descripcion   String?
+  capacidadMax  Int          // El dato distinto que pediste
+  fechaHora     DateTime     // Cuándo ocurre la charla
+
+  aulaId        Int
+  aula          Aula         @relation(fields: [aulaId], references: [id])
+
+  organizadorId String
+  organizador   User         @relation("OrganizadorCharlas", fields: [organizadorId], references: [id])
+
+  participantes User[]       @relation("ParticipantesCharlas")
 }
