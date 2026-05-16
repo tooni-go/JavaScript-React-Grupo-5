@@ -16,8 +16,23 @@ export default auth((req) => {
     return undefined
   }
 
+  // Redirigir la raíz al dashboard si está logueado
+  if (nextUrl.pathname === "/" && isLoggedIn) {
+    return Response.redirect(new URL("/dashboard", nextUrl))
+  }
+
   if (!isLoggedIn && !isPublicRoute) {
     return Response.redirect(new URL("/auth/login", nextUrl))
+  }
+
+  // Protección de rutas de Admin con Ofuscación (404)
+  const isAdminRoute = nextUrl.pathname.startsWith("/admin");
+  if (isAdminRoute) {
+    const userRole = (req.auth?.user as any)?.rol;
+    if (userRole !== "SUPERADMIN") {
+      // Reescribir a una ruta inexistente para forzar la página 404 de Next.js
+      return Response.rewrite(new URL("/404", nextUrl));
+    }
   }
 
   return undefined
