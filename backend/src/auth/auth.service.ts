@@ -23,7 +23,12 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    return this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.rol);
+    return {
+      ...tokens,
+      user_id: user.id,
+      rol: user.rol,
+    };
   }
 
   async login(dto: LoginDto) {
@@ -33,10 +38,14 @@ export class AuthService {
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
     if (!passwordMatches) throw new UnauthorizedException('Invalid credentials');
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.rol);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    return {
+      ...tokens,
+      user_id: user.id,
+      rol: user.rol,
+    };
   }
 
   async logout(userId: string, rt: string) {
@@ -71,7 +80,7 @@ export class AuthService {
         throw new ForbiddenException('Access Denied or Token Expired');
     }
 
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(user.id, user.email, user.rol);
     
     // Replace old token with new one
     await this.prisma.refreshToken.delete({ where: { id: savedRt.id } });
@@ -95,17 +104,17 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: string, email: string) {
+  async getTokens(userId: string, email: string, rol: string) {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, rol },
         {
           secret: process.env.JWT_ACCESS_SECRET || 'at-secret',
           expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email },
+        { sub: userId, email, rol },
         {
           secret: process.env.JWT_REFRESH_SECRET || 'rt-secret',
           expiresIn: '7d',
