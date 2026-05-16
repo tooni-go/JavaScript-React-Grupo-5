@@ -10,7 +10,7 @@ export default async function Navbar() {
     <nav className="border-b bg-white shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="text-xl font-bold text-primary">
-          Escuela Interactiva
+          Mapa Interactivo
         </Link>
 
         <div className="flex items-center gap-4">

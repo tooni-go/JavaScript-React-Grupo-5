@@ -51,6 +51,7 @@ export function LoginForm() {
       setError("Credenciales inválidas");
       setLoading(false);
     } else {
+      router.refresh();
       router.push("/dashboard");
     }
   }
