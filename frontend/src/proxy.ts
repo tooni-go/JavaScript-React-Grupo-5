@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { NextResponse } from "next/server"
 
 export default auth((req) => {
   const isLoggedIn = !!req.auth
@@ -11,18 +12,18 @@ export default auth((req) => {
 
   if (isPublicRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL("/dashboard", nextUrl))
+      return NextResponse.redirect(new URL("/dashboard", nextUrl))
     }
     return undefined
   }
 
   // Redirigir la raíz al dashboard si está logueado
   if (nextUrl.pathname === "/" && isLoggedIn) {
-    return Response.redirect(new URL("/dashboard", nextUrl))
+    return NextResponse.redirect(new URL("/dashboard", nextUrl))
   }
 
   if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/auth/login", nextUrl))
+    return NextResponse.redirect(new URL("/auth/login", nextUrl))
   }
 
   // Protección de rutas de Admin con Ofuscación (404)
@@ -31,7 +32,7 @@ export default auth((req) => {
     const userRole = (req.auth?.user as any)?.rol;
     if (userRole !== "SUPERADMIN") {
       // Reescribir a una ruta inexistente para forzar la página 404 de Next.js
-      return Response.rewrite(new URL("/404", nextUrl));
+      return NextResponse.rewrite(new URL("/404", nextUrl));
     }
   }
 
