@@ -31,3 +31,40 @@ Habría que hacer un plano por cada piso y agregar un botón para ir de un piso 
 -R: Tal vez entre 15 y 20 horas?
 
 -R: La pagina no tendría monetización.
+
+## Guía de Instalación y Ejecución Local
+
+Para correr el proyecto en tu máquina (Frontend y Backend con SQLite), seguí estos pasos:
+
+### 1. Configurar y Correr el Backend (NestJS + Prisma)
+Abrí una terminal en la carpeta raíz del proyecto y ejecutá lo siguiente:
+
+```bash
+# Entrar a la carpeta del backend
+cd backend
+
+# Instalar dependencias
+pnpm install
+
+# Sincronizar la base de datos local SQLite (crear tablas con Prisma)
+pnpm exec prisma migrate dev
+
+# Iniciar el servidor de desarrollo
+pnpm run start:dev
+```
+El backend quedará corriendo en `http://localhost:3001/api`.
+
+### 2. Configurar y Correr el Frontend (Next.js)
+Abrí **otra terminal** (dejando la del backend abierta) y ejecutá:
+
+```bash
+# Entrar a la carpeta del frontend
+cd frontend
+
+# Instalar dependencias
+pnpm install
+
+# Iniciar la aplicación web
+pnpm run dev
+```
+El frontend estará disponible en `http://localhost:3000`. Podés abrir ese enlace en tu navegador para ver la página y probar el login.
