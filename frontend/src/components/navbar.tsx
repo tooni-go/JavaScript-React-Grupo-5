@@ -1,10 +1,31 @@
-import { auth, signOut } from "@/auth";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import axios from "axios";
+"use client";
 
-export default async function Navbar() {
-  const session = await auth();
+import { useAuth } from "@/components/providers/auth-provider";
+import { Button } from "@/components/ui/button";
+import { getApiBase } from "@/lib/api";
+import axios from "axios";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+export default function Navbar() {
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+
+  async function handleLogout() {
+    if (user?.accessToken) {
+      try {
+        await axios.post(
+          `${getApiBase()}/auth/logout`,
+          {},
+          { headers: { Authorization: `Bearer ${user.accessToken}` } },
+        );
+      } catch {
+        // Cerramos sesión local aunque falle el backend
+      }
+    }
+    logout();
+    router.push("/auth/login");
+  }
 
   return (
     <nav className="border-b bg-white shadow-sm">
@@ -14,39 +35,14 @@ export default async function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
-          {session ? (
+          {loading ? null : user ? (
             <>
-              <span className="text-sm text-slate-600 hidden md:inline">
-                {session.user?.email}
+              <span className="hidden text-sm text-slate-600 md:inline">
+                {user.email}
               </span>
-              <form
-                action={async () => {
-                  "use server";
-                  // Intentamos cerrar sesión en el backend si tenemos el token
-                  const currentSession = await auth();
-                  const token = currentSession?.user as any;
-                  if (token?.accessToken) {
-                    try {
-                      await axios.post(
-                        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
-                        {},
-                        {
-                          headers: { Authorization: `Bearer ${token.accessToken}` },
-                        }
-                      );
-                    } catch (error) {
-                      console.error("Error al cerrar sesión en el backend", error);
-                    }
-                  }
-                  
-                  // Siempre cerramos la sesión en el frontend
-                  await signOut({ redirectTo: "/auth/login" });
-                }}
-              >
-                <Button variant="outline" size="sm" type="submit">
-                  Cerrar Sesión
-                </Button>
-              </form>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Cerrar Sesión
+              </Button>
             </>
           ) : (
             <Link href="/auth/login">

@@ -1,5 +1,14 @@
-node_modules
-# Keep environment variables out of version control
+# Compilación de NestJS
+dist/
+
+# Dependencias
+node_modules/
+
+# Variables de entorno locales
 .env
+
+# Base de datos SQLite local (¡Para no pisar la de tus compañeros!)
+*.db
+*.db-journal
 
 /generated/prisma

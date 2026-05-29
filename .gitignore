@@ -16,3 +16,9 @@ Auth System For School Map.md
 plan.md
 
 prompts/*
+
+# Base de datos local
+*.db
+*.db-journal
+
+.pnpm-store/

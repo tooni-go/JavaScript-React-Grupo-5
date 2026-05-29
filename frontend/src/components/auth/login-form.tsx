@@ -4,8 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { useAuth } from "@/components/providers/auth-provider";
+import { getApiBase } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,7 +18,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Link from "next/link";
 
 const loginSchema = z.object({
@@ -26,6 +35,7 @@ const loginSchema = z.object({
 
 export function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,18 +51,28 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const result = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
+    try {
+      const response = await axios.post(`${getApiBase()}/auth/login`, {
+        email: values.email,
+        password: values.password,
+      });
 
-    if (result?.error) {
+      if (response.data?.access_token) {
+        login({
+          id: response.data.user_id,
+          email: values.email,
+          rol: response.data.rol,
+          accessToken: response.data.access_token,
+          refreshToken: response.data.refresh_token,
+        });
+        router.push("/dashboard");
+        return;
+      }
       setError("Credenciales inválidas");
+    } catch {
+      setError("Credenciales inválidas");
+    } finally {
       setLoading(false);
-    } else {
-      router.refresh();
-      router.push("/dashboard");
     }
   }
 
@@ -93,7 +113,9 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            {error && (
+              <p className="text-sm font-medium text-destructive">{error}</p>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Cargando..." : "Ingresar"}
             </Button>

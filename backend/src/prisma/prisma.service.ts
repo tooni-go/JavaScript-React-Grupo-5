@@ -5,7 +5,12 @@ import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
-    const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL! });
+    const url = process.env.DATABASE_URL;
+    if (!url) {
+      throw new Error('DATABASE_URL no está definida (revisá ~/servicios/.env)');
+    }
+
+    const adapter = new PrismaBetterSqlite3({ url });
     super({ adapter });
   }
 

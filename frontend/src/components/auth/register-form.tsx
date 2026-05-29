@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { getApiBase } from "@/lib/api";
 
 const registerSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -48,7 +49,7 @@ export function RegisterForm() {
     setError(null);
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+      await axios.post(`${getApiBase()}/auth/register`, {
         email: values.email,
         password: values.password,
       });
