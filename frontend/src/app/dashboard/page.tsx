@@ -31,16 +31,26 @@ export default function DashboardPage() {
                 Has ingresado correctamente al sistema.
               </h3>
               <p className="mb-6 mt-2 text-slate-500">
-                Pronto podrás visualizar aquí el mapa interactivo de las aulas y
-                horarios.
+                Explora el mapa interactivo de las aulas y horarios.
               </p>
+
+              <div className="mt-6">
+                <Link href="/mapa">
+                  <Button
+                    variant="default"
+                    className="bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    Ver Mapa Interactivo
+                  </Button>
+                </Link>
+              </div>
 
               {user?.rol === "SUPERADMIN" && (
                 <div className="mt-6">
                   <Link href="/admin">
                     <Button
-                      variant="default"
-                      className="bg-indigo-600 hover:bg-indigo-700"
+                      variant="outline"
+                      className="ml-4"
                     >
                       Ir al Panel de Administración
                     </Button>
