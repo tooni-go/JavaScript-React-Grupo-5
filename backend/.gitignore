@@ -12,3 +12,7 @@ node_modules/
 *.db-journal
 
 /generated/prisma
+
+# Lockfiles incorrectos
+package-lock.json
+yarn.lock

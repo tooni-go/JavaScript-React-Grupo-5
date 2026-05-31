@@ -22,3 +22,16 @@ prompts/*
 *.db-journal
 
 .pnpm-store/
+
+# IDE y Editores
+.vscode/
+.idea/
+*.swp
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Lockfiles de otros gestores de paquetes (usamos pnpm)
+package-lock.json
+yarn.lock
