@@ -3,13 +3,6 @@
 import { AuthGuard } from "@/components/auth-guard";
 import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -17,40 +10,20 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto p-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Bienvenido, {user?.email}</CardTitle>
-            <CardDescription>
-              Este es tu panel de control protegido.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-lg border bg-slate-50 p-8 text-center">
-              <h3 className="text-lg font-medium text-slate-900">
-                Has ingresado correctamente al sistema.
-              </h3>
-              <p className="mb-6 mt-2 text-slate-500">
-                Pronto podrás visualizar aquí el mapa interactivo de las aulas y
-                horarios.
-              </p>
-
-              {user?.rol === "SUPERADMIN" && (
-                <div className="mt-6">
-                  <Link href="/admin">
-                    <Button
-                      variant="default"
-                      className="bg-indigo-600 hover:bg-indigo-700"
-                    >
-                      Ir al Panel de Administración
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <main className="h-[calc(100vh-4rem)] bg-slate-50 w-full relative overflow-hidden flex items-center justify-center">
+        {/* Placeholder futuro para el mapa SVG interactivo */}
+        <p className="text-muted-foreground opacity-50 font-medium">Espacio reservado para el mapa interactivo</p>
+        
+        {user?.rol === "SUPERADMIN" && (
+          <div className="absolute bottom-6 right-6 z-50">
+            <Link href="/admin">
+              <Button variant="secondary" className="shadow-lg font-medium">
+                Panel de Administración
+              </Button>
+            </Link>
+          </div>
+        )}
+      </main>
     </AuthGuard>
   );
 }

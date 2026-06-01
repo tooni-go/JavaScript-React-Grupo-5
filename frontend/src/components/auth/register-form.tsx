@@ -62,7 +62,7 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="border-none shadow-xl">
+    <Card className="border-none shadow-lg rounded-2xl">
       <CardHeader>
         <CardTitle>Crear Cuenta</CardTitle>
         <CardDescription>

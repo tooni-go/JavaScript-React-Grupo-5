@@ -1,11 +1,12 @@
 "use client";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getApiBase } from "@/lib/api";
 import axios from "axios";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
@@ -27,29 +28,58 @@ export default function Navbar() {
     router.push("/auth/login");
   }
 
-  return (
-    <nav className="border-b bg-white shadow-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-primary">
-          Mapa Interactivo
-        </Link>
+  // Obtener iniciales del email para el avatar
+  const getInitials = (email: string) => {
+    return email ? email.substring(0, 2).toUpperCase() : "US";
+  };
 
-        <div className="flex items-center gap-4">
-          {loading ? null : user ? (
-            <>
-              <span className="hidden text-sm text-slate-600 md:inline">
-                {user.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                Cerrar Sesión
-              </Button>
-            </>
-          ) : (
-            <Link href="/auth/login">
-              <Button size="sm">Iniciar Sesión</Button>
-            </Link>
-          )}
+  return (
+    <nav className="h-16 w-full bg-primary text-primary-foreground shadow-md flex items-center">
+      {/* 1. Bloque Izquierdo (Logo) */}
+      <div className="flex h-full w-16 shrink-0 items-center justify-center border-r border-red-800/50 md:w-20">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full overflow-hidden bg-white p-2">
+          <Image 
+            src="/ips-logo.png" 
+            alt="Logo IPS" 
+            width={32} 
+            height={32} 
+            className="object-contain w-full h-full"
+            priority
+          />
         </div>
+      </div>
+
+      {/* 2. Bloque Central/Izquierdo (Título) */}
+      <div className="flex flex-1 items-center px-4">
+        <div className="hidden items-center sm:flex">
+          <span className="text-lg font-semibold tracking-tight">Mapa Interactivo</span>
+        </div>
+      </div>
+
+      {/* 3. Bloque Derecho (Usuario y Salir) */}
+      <div className="ml-auto flex h-full items-center">
+        {!loading && user && (
+          <>
+            {/* Avatar y Nombre */}
+            <div className="hidden h-full items-center gap-3 border-l border-red-800/50 px-4 sm:flex">
+              <Avatar className="h-9 w-9 border border-white/20">
+                <AvatarFallback className="bg-slate-400 text-white font-medium">
+                  {getInitials(user.email)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium opacity-90">{user.email}</span>
+            </div>
+
+            {/* Botón de Salir (La "X") */}
+            <button 
+              onClick={handleLogout}
+              className="flex h-full w-16 shrink-0 items-center justify-center border-l border-red-800/50 hover:bg-red-800/30 transition-colors"
+              title="Cerrar Sesión"
+            >
+              <X size={28} className="opacity-90 hover:opacity-100" />
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );
