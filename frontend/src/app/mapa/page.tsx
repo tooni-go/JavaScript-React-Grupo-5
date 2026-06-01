@@ -10,6 +10,8 @@ export default function MapaPage() {
 
   useEffect(() => {
     // Cargar el SVG desde el directorio public
+    // En local: /PruebaPB.svg
+    // En producción: /~uno/PruebaPB.svg (basePath de Next.js)
     fetch("/PruebaPB.svg")
       .then((res) => res.text())
       .then((text) => setSvgContent(text))

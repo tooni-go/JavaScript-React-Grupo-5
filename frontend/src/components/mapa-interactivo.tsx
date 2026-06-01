@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { getApiBase } from "@/lib/api";
 
 interface AulaInfo {
   id: number;
@@ -54,7 +55,7 @@ export default function MapaInteractivo({
     try {
       // Buscar el aula por nombre (ej: "Aula-0-1" -> buscar aula con nombre "Aula-0-1")
       const response = await axios.get<AulaInfo>(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/aulas`,
+        `${getApiBase()}/aulas`,
         { params: { nombre: aulaId } }
       );
       

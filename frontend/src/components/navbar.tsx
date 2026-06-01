@@ -7,6 +7,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
+import ipsLogo from "../../public/ips-logo.png";
 
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
@@ -39,7 +40,7 @@ export default function Navbar() {
       <div className="flex h-full w-16 shrink-0 items-center justify-center border-r border-red-800/50 md:w-20">
         <div className="flex h-12 w-12 items-center justify-center rounded-full overflow-hidden bg-white p-2">
           <Image 
-            src="/ips-logo.png" 
+            src={ipsLogo} 
             alt="Logo IPS" 
             width={32} 
             height={32} 
