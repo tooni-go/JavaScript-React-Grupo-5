@@ -1,59 +1,35 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { AuthGuard } from "@/components/auth-guard";
-import { useAuth } from "@/components/providers/auth-provider";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import Link from "next/link";
+import MapaInteractivo from "@/components/mapa-interactivo";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const [pisoActual, setPisoActual] = useState<"PB" | "Piso 1" | "Piso 2" | "Piso 3">("PB");
+  const [svgContent, setSvgContent] = useState("");
+
+  useEffect(() => {
+    // Cargar el SVG desde el directorio public
+    fetch("/PruebaPB.svg")
+      .then((res) => res.text())
+      .then((text) => setSvgContent(text))
+      .catch((err) => console.error("Error al cargar el SVG:", err));
+  }, []);
 
   return (
     <AuthGuard>
-      <div className="container mx-auto p-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Bienvenido, {user?.email}</CardTitle>
-            <CardDescription>
-              Este es tu panel de control protegido.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-lg border bg-slate-50 p-8 text-center">
-              <h3 className="text-lg font-medium text-slate-900">
-                Has ingresado correctamente al sistema.
-              </h3>
-              <p className="mb-6 mt-2 text-slate-500">
-                Explora el mapa interactivo de las aulas y horarios.
-              </p>
-
-              <div className="mt-6">
-                <Link href="/mapa">
-                  <Button
-                    variant="default"
-                    className="bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    Ver Mapa Interactivo
-                  </Button>
-                </Link>
-              </div>
-
-              {user?.rol === "SUPERADMIN" && (
-                <div className="mt-6">
-                  <Link href="/admin">
-                    <Button
-                      variant="outline"
-                      className="ml-4"
-                    >
-                      Ir al Panel de Administración
-                    </Button>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto p-4 md:p-8 flex flex-col h-full">
+        {svgContent ? (
+          <MapaInteractivo
+            piso={pisoActual}
+            onPisoChange={setPisoActual}
+            svgContent={svgContent}
+          />
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-gray-600 animate-pulse font-medium">Cargando mapa interactivo...</p>
+          </div>
+        )}
       </div>
     </AuthGuard>
   );
