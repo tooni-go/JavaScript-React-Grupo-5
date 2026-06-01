@@ -7,6 +7,15 @@ export class CreateAulaDto {
   @IsInt()
   @Min(0)
   piso: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  capacidad?: number;
+
+  @IsOptional()
+  @IsString()
+  estado?: string;
 }
 
 export class UpdateAulaDto {
@@ -18,4 +27,13 @@ export class UpdateAulaDto {
   @IsInt()
   @Min(0)
   piso?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  capacidad?: number;
+
+  @IsOptional()
+  @IsString()
+  estado?: string;
 }

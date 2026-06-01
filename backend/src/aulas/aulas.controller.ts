@@ -20,6 +20,11 @@ export class AulasController {
     return this.aulasService.findAll();
   }
 
+  @Get(':id/estado-actual')
+  getEstadoActual(@Param('id') id: string) {
+    return this.aulasService.getEstadoActual(+id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.aulasService.findOne(+id);

@@ -12,7 +12,13 @@ export class CreateCharlaDto {
   capacidadMax: number;
 
   @IsDateString()
-  fechaHora: string;
+  fecha: string;
+
+  @IsString()
+  horaInicio: string;
+
+  @IsString()
+  horaFin: string;
 
   @IsInt()
   aulaId: number;
@@ -36,7 +42,15 @@ export class UpdateCharlaDto {
 
   @IsOptional()
   @IsDateString()
-  fechaHora?: string;
+  fecha?: string;
+
+  @IsOptional()
+  @IsString()
+  horaInicio?: string;
+
+  @IsOptional()
+  @IsString()
+  horaFin?: string;
 
   @IsOptional()
   @IsInt()

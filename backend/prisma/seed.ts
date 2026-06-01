@@ -163,7 +163,9 @@ async function main() {
       titulo: 'Introducción a la Inteligencia Artificial',
       descripcion: 'Charla sobre los fundamentos de IA y Machine Learning',
       capacidadMax: 50,
-      fechaHora: new Date('2026-06-15T14:00:00'),
+      fecha: new Date('2026-06-15T00:00:00'),
+      horaInicio: '14:00',
+      horaFin: '16:00',
       aulaId: aulas[6].id, // Aula-Patio-Verde
       organizadorId: adminUser.id,
     },

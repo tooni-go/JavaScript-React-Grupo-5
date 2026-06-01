@@ -66,6 +66,8 @@ model Aula {
   id           Int          @id @default(autoincrement())
   nombre       String       // Ej: "Laboratorio 1"
   piso         Int
+  capacidad    Int          @default(30)
+  estado       String       @default("disponible") // "disponible", "ocupada", "mantenimiento"
   asignaciones Asignacion[]
   charlas      Charla[]
 }
@@ -94,7 +96,9 @@ model Charla {
   titulo        String       // Ej: "Introducción a la IA"
   descripcion   String?
   capacidadMax  Int          // El dato distinto que pediste
-  fechaHora     DateTime     // Cuándo ocurre la charla
+  fecha         DateTime     // Cuándo ocurre la charla
+  horaInicio    String       @default("08:00") // Ej: "08:00"
+  horaFin       String       @default("10:00") // Ej: "10:00"
 
   aulaId        Int
   aula          Aula         @relation(fields: [aulaId], references: [id])
