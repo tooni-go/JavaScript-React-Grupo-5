@@ -5,7 +5,7 @@ import { AuthGuard } from "@/components/auth-guard";
 import MapaInteractivo from "@/components/mapa-interactivo";
 
 export default function MapaPage() {
-  const [pisoActual, setPisoActual] = useState(0);
+  const [pisoActual, setPisoActual] = useState<"PB" | "Piso 1" | "Piso 2" | "Piso 3">("PB");
   const [svgContent, setSvgContent] = useState("");
 
   useEffect(() => {

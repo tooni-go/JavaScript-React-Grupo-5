@@ -21,10 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="overscroll-none">
-      <body className={`${inter.variable} antialiased font-sans overscroll-none`}>
+      <body className={`${inter.variable} antialiased font-sans overscroll-none flex h-screen flex-col overflow-hidden`}>
         <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
+          <div className="shrink-0">
+            <Navbar />
+          </div>
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </AuthProvider>
       </body>
     </html>

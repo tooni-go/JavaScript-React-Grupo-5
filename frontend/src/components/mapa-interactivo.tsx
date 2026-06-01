@@ -32,9 +32,11 @@ interface AulaInfo {
   }>;
 }
 
+type PisoType = "PB" | "Piso 1" | "Piso 2" | "Piso 3";
+
 interface MapaInteractivoProps {
-  piso: number;
-  onPisoChange: (piso: number) => void;
+  piso: PisoType;
+  onPisoChange: (piso: PisoType) => void;
   svgContent: string;
 }
 
@@ -64,8 +66,8 @@ export default function MapaInteractivo({
         setError("No se encontró información para este aula");
       }
     } catch (err) {
-      console.error("Error al obtener información del aula:", err);
-      setError("No se pudo cargar la información del aula");
+      console.warn("Ruta del backend no configurada aún", err);
+      setError("Información del aula no disponible por ahora");
     } finally {
       setLoading(false);
     }
@@ -77,20 +79,52 @@ export default function MapaInteractivo({
   };
 
   return (
-    <div className="w-full">
-      {/* Mapa SVG */}
-      <div className="relative w-full bg-white rounded-lg shadow-lg border border-gray-200 overflow-auto">
-        <div
-          dangerouslySetInnerHTML={{ __html: svgContent }}
-          className="w-full h-auto"
-          onClick={(e) => {
-            const target = e.target as HTMLElement;
-            // Detectar clics en elementos con ID que empiezan con "Aula-"
-            if (target.id && target.id.startsWith("Aula-")) {
-              handleAulaClick(target.id);
-            }
-          }}
-        />
+    <div className="w-full relative">
+      {/* Selector de Pisos flotante */}
+      <div className="absolute top-4 left-4 z-10 bg-white rounded-md shadow-md border flex overflow-hidden">
+        {[
+          { label: "PB", value: "PB" as PisoType },
+          { label: "Piso 1", value: "Piso 1" as PisoType },
+          { label: "Piso 2", value: "Piso 2" as PisoType },
+          { label: "Piso 3", value: "Piso 3" as PisoType },
+        ].map((p) => (
+          <button
+            key={p.value}
+            onClick={() => onPisoChange(p.value)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              piso === p.value
+                ? "bg-primary text-primary-foreground"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Mapa SVG o Placeholder */}
+      <div className="relative w-full bg-white rounded-lg shadow-lg border border-gray-200 overflow-auto min-h-[600px]">
+        {piso === "PB" ? (
+          <div
+            dangerouslySetInnerHTML={{ __html: svgContent }}
+            className="w-full h-auto"
+            onClick={(e) => {
+              const target = e.target as HTMLElement;
+              // Detectar clics en elementos con ID que empiezan con "Aula-" o "Aula_-"
+              if (target.id && target.id.startsWith("Aula-")) {
+                handleAulaClick(target.id);
+              }
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+            <div className="w-full max-w-md p-12 border-2 border-dashed border-gray-300 rounded-xl text-center">
+              <p className="text-gray-500 font-medium text-lg">
+                Plano del Piso {piso} en desarrollo...
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal con información del aula */}
