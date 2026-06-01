@@ -1,4 +1,5 @@
 import Image from "next/image";
+import logoIps from "@/../public/ips-logo.png";
 
 export default function AuthLayout({
   children,
@@ -13,11 +14,11 @@ export default function AuthLayout({
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center text-center space-y-8">
           <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-white/10 ring-1 ring-white/20 backdrop-blur-md shadow-2xl overflow-hidden p-3">
-            <Image 
-              src="/ips-logo.png" 
-              alt="Logo del Instituto Politécnico Superior" 
-              width={104} 
-              height={104} 
+            <Image
+              src={logoIps}
+              alt="Logo del Instituto Politécnico Superior"
+              width={104}
+              height={104}
               className="object-contain rounded-xl"
               priority
             />
@@ -32,7 +33,7 @@ export default function AuthLayout({
           </div>
         </div>
       </div>
-      
+
       {/* Columna Derecha: Auth Forms */}
       <div className="flex items-center justify-center bg-background p-4 lg:p-8">
         <div className="w-full max-w-md">

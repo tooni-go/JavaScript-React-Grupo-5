@@ -1,16 +1,18 @@
 import type { NextConfig } from "next";
 
-// Deploy servidor poli: NEXT_PUBLIC_BASE_PATH=/~uno
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || undefined;
+// Regla de Oro: Deploy servidor poli
+const basePath = '/~uno';
 
 const nextConfig: NextConfig = {
   output: "export",
   basePath: basePath,
-  assetPrefix: basePath,
   trailingSlash: true,
   images: {
     unoptimized: true,
   },
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  }
 };
 
 export default nextConfig;

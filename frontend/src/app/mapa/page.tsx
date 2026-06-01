@@ -9,8 +9,10 @@ export default function MapaPage() {
   const [svgContent, setSvgContent] = useState("");
 
   useEffect(() => {
-    // Cargar el SVG desde el directorio public
-    fetch("/PruebaPB.svg")
+    // Extraer el basePath inyectado o usar vacío en local
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    // Cargar el SVG desde el directorio public respetando el basePath
+    fetch(`${basePath}/PruebaPB.svg`)
       .then((res) => res.text())
       .then((text) => setSvgContent(text))
       .catch((err) => console.error("Error al cargar el SVG:", err));
