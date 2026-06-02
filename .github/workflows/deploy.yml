@@ -1,18 +1,47 @@
-# 5. Subir el artefacto (la carpeta 'out' de Next.js)
+name: Desplegar Frontend
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Instalar PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Instalar dependencias
+        working-directory: ./frontend
+        run: pnpm install
+
+      - name: Compilar la app
+        working-directory: ./frontend
+        run: pnpm run build
+
       - name: Subir artefacto de la compilación
         uses: actions/upload-artifact@v4
         with:
           name: app-compilada   
-          path: frontend/out # Busca la carpeta out dentro de frontend
+          path: frontend/out
 
-      # 6. Descargar el artefacto directamente en el directorio raíz del robot
       - name: Descargar artefacto compilado
         uses: actions/download-artifact@v4
         with:
           name: app-compilada
-          path: out-clean # Lo descargamos en una carpeta limpia en la raíz
+          path: out-clean 
 
-      # 7. Copiar los archivos al servidor del Poli
       - name: Copiar archivos al servidor
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -20,6 +49,6 @@
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22002
-          source: "out-clean/*"      # <-- CORREGIDO: Toma todo el contenido limpio
-          strip_components: 1        # <-- MAGIA: Evita que se cree la carpeta "out-clean" en el servidor
-          [cite_start]target: "~/public_html/"   # Tu carpeta asignada en el Poli [cite: 189]
+          source: "out-clean/*"
+          strip_components: 1
+          target: "~/public_html/"
