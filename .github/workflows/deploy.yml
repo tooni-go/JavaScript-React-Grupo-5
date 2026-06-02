@@ -1,54 +1,104 @@
-name: Desplegar Frontend
+name: Deploy to Production
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
+      # ─────────────────────────────────────────────────────────────
+      # 1. CHECKOUT Y ENTORNO
+      # ─────────────────────────────────────────────────────────────
+      - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Instalar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "22"
 
-      - name: Instalar PNPM
-        uses: pnpm/action-setup@v3
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: latest
 
-      - name: Instalar dependencias
-        working-directory: ./frontend
-        run: pnpm install
+      - name: Instalar dependencias del monorepo
+        run: pnpm install --frozen-lockfile
 
-      - name: Compilar la app
-        working-directory: ./frontend
-        run: pnpm run build
+      # ─────────────────────────────────────────────────────────────
+      # 2. FRONTEND (Next.js con output: "export")
+      # ─────────────────────────────────────────────────────────────
+      - name: Compilar Frontend
+        working-directory: frontend
+        run: pnpm run build:deploy
 
-      - name: Subir artefacto de la compilación
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-compilada   
-          path: frontend/out
-
-      - name: Descargar artefacto compilado
-        uses: actions/download-artifact@v4
-        with:
-          name: app-compilada
-          path: out-clean 
-
-      - name: Copiar archivos al servidor
+      - name: Subir Frontend a ~/public_html/
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22002
-          source: "out-clean/*"
-          strip_components: 1
+          source: "frontend/out/**"
           target: "~/public_html/"
+          strip_components: 2
+
+      # ─────────────────────────────────────────────────────────────
+      # 3. BACKEND (NestJS + Prisma)
+      # ─────────────────────────────────────────────────────────────
+      - name: Compilar Backend
+        working-directory: backend
+        run: pnpm run build:deploy
+
+      - name: Subir dist/ a ~/servicios/dist/
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22002
+          source: "backend/dist/**"
+          target: "~/servicios/dist/"
+          strip_components: 2
+
+      - name: Subir prisma/ a ~/servicios/prisma/
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22002
+          source: "backend/prisma/**"
+          target: "~/servicios/prisma/"
+          strip_components: 2
+
+      - name: Subir prisma.config.ts y package.json a ~/servicios/
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22002
+          source: "backend/prisma.config.ts,backend/package.json"
+          target: "~/servicios/"
+          strip_components: 1
+
+      # ─────────────────────────────────────────────────────────────
+      # 4. MIGRACIÓN + REINICIO PM2
+      # ─────────────────────────────────────────────────────────────
+      - name: Migrar BD y reiniciar PM2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22002
+          script: |
+            cd ~/servicios
+            npx prisma migrate deploy
+            npx prisma generate
+            pm2 restart servicios
