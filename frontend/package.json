@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:deploy": "NEXT_PUBLIC_BASE_PATH=/~uno NEXT_PUBLIC_API_URL=/~uno/api next build",
+    "build:deploy": "NEXT_PUBLIC_BASE_PATH=/~uno NEXT_PUBLIC_API_URL=http://200.3.127.46:8002/~uno/api next build",
     "start": "next start",
     "lint": "eslint"
   },
