@@ -50,6 +50,10 @@ jobs:
       # ─────────────────────────────────────────────────────────────
       # 3. BACKEND (NestJS + Prisma)
       # ─────────────────────────────────────────────────────────────
+      - name: Generar cliente Prisma
+        working-directory: backend
+        run: npx prisma generate
+
       - name: Compilar Backend
         working-directory: backend
         run: pnpm run build:deploy
