@@ -101,8 +101,25 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22002
-          script: |
+          script_stop: |
+            # Script que se ejecuta si hay error - marca la migración fallida como resuelta y reintenta
+            echo "⚠️ La migración falló. Intentando recovery..."
             cd ~/servicios
-            npx prisma migrate deploy
+            FAILED_MIGRATION=$(npx prisma migrate status 2>&1 | grep -oE '[0-9]{14}_\w+' | head -1)
+            if [ ! -z "$FAILED_MIGRATION" ]; then
+              echo "Marcando migración $FAILED_MIGRATION como resuelta..."
+              npx prisma migrate resolve --rolled-back "$FAILED_MIGRATION" || npx prisma migrate resolve --applied "$FAILED_MIGRATION" || true
+            fi
+            npx prisma migrate deploy || { echo "❌ La migración sigue fallando"; exit 1; }
             npx prisma generate
             pm2 restart servicios
+          script: |
+            cd ~/servicios
+            set -e  # Falla inmediatamente si hay error
+            echo "🔄 Aplicando migraciones..."
+            npx prisma migrate deploy || { echo "❌ Error en migración"; exit 1; }
+            echo "✅ Migraciones aplicadas"
+            npx prisma generate
+            echo "🔄 Reiniciando servicio..."
+            pm2 restart servicios
+            echo "✅ Deploy completado"
