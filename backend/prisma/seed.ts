@@ -110,6 +110,35 @@ async function main() {
 
   console.log('Profesor creado:', profesorUser.nombre);
 
+  // Crear estudiante
+  const studentUser = await prisma.user.upsert({
+    where: { email: 'alumno@poli.com' },
+    update: {},
+    create: {
+      email: 'alumno@poli.com',
+      password: await bcrypt.hash('alumno123', 10),
+      nombre: 'Pedro Estudiante',
+      rol: 'ESTUDIANTE',
+      cursoId: curso1.id,
+    },
+  });
+
+  console.log('Estudiante creado:', studentUser.nombre);
+
+  // Crear usuario pendiente de aprobación
+  const pendingUser = await prisma.user.upsert({
+    where: { email: 'pendiente@poli.com' },
+    update: {},
+    create: {
+      email: 'pendiente@poli.com',
+      password: await bcrypt.hash('pendiente123', 10),
+      nombre: 'Ana Pendiente',
+      rol: null,
+    },
+  });
+
+  console.log('Usuario pendiente creado:', pendingUser.email);
+
   // Crear asignaciones
   const asignacion1 = await prisma.asignacion.upsert({
     where: { id: 1 },
@@ -172,6 +201,38 @@ async function main() {
   });
 
   console.log('Charla creada:', charla.titulo);
+
+  const charla2 = await prisma.charla.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      titulo: 'Taller de Ciberseguridad',
+      descripcion: 'Aprende a proteger sistemas y datos en el mundo digital',
+      capacidadMax: 30,
+      fecha: new Date('2026-06-20T00:00:00'),
+      horaInicio: '10:00',
+      horaFin: '12:00',
+      aulaId: aulas[0].id,
+      organizadorId: profesorUser.id,
+    },
+  });
+
+  const charla3 = await prisma.charla.upsert({
+    where: { id: 3 },
+    update: {},
+    create: {
+      titulo: 'Robótica y Automatización',
+      descripcion: 'Introducción a la robótica y sus aplicaciones en la industria',
+      capacidadMax: 25,
+      fecha: new Date('2026-07-01T00:00:00'),
+      horaInicio: '09:00',
+      horaFin: '11:30',
+      aulaId: aulas[1].id,
+      organizadorId: adminUser.id,
+    },
+  });
+
+  console.log('Charlas adicionales creadas:', charla2.titulo, '-', charla3.titulo);
 
   console.log('Seed completado exitosamente!');
 } //Todo esto es para poblar la base de datos con datos de prueba

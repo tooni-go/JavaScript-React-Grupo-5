@@ -17,7 +17,7 @@ model User {
   email              String         @unique
   password           String
   nombre             String?        @default("Usuario")
-  rol                String         @default("ESTUDIANTE") // "PROFESOR", "ESTUDIANTE", "SUPERADMIN"
+  rol                String?        // null = pending approval, "PROFESOR", "ESTUDIANTE", "SUPERADMIN"
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   

@@ -14,16 +14,24 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
+    console.log('[Auth] Register attempt for:', dto.email);
+    
     const existingUser = await this.usersService.findByEmail(dto.email);
-    if (existingUser) throw new UnauthorizedException('User already exists');
+    if (existingUser) {
+      console.log('[Auth] User already exists:', dto.email);
+      throw new UnauthorizedException('User already exists');
+    }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    // UsersService.create() will hash the password - pass plain text
     const user = await this.usersService.create({
       email: dto.email,
-      password: hashedPassword,
+      password: dto.password,  // Plain text - UsersService hashes it
+      rol: null,
     });
+    
+    console.log('[Auth] User created:', user.email, '| ID:', user.id);
 
-    const tokens = await this.getTokens(user.id, user.email, user.rol);
+    const tokens = await this.getTokens(user.id, user.email, user.rol || '');
     return {
       ...tokens,
       user_id: user.id,
@@ -33,12 +41,16 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatches) throw new UnauthorizedException('Invalid credentials');
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    const tokens = await this.getTokens(user.id, user.email, user.rol);
+    const tokens = await this.getTokens(user.id, user.email, user.rol ?? null);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
     return {
@@ -80,7 +92,7 @@ export class AuthService {
         throw new ForbiddenException('Access Denied or Token Expired');
     }
 
-    const tokens = await this.getTokens(user.id, user.email, user.rol);
+    const tokens = await this.getTokens(user.id, user.email, user.rol ?? null);
     
     // Replace old token with new one
     await this.prisma.refreshToken.delete({ where: { id: savedRt.id } });
@@ -104,17 +116,18 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: string, email: string, rol: string) {
+  async getTokens(userId: string, email: string, rol: string | null) {
+    const rolValue = rol ?? 'PENDING';
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(
-        { sub: userId, email, rol },
+        { sub: userId, email, rol: rolValue },
         {
           secret: process.env.JWT_ACCESS_SECRET || 'at-secret',
           expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(
-        { sub: userId, email, rol },
+        { sub: userId, email, rol: rolValue },
         {
           secret: process.env.JWT_REFRESH_SECRET || 'rt-secret',
           expiresIn: '7d',

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCharlaDto, UpdateCharlaDto } from './dto/charla.dto';
 
@@ -64,6 +64,12 @@ export class CharlasService {
 
   async addParticipante(charlaId: number, userId: string) {
     const charla = await this.findOne(charlaId);
+    if (charla.participantes.length >= charla.capacidadMax) {
+      throw new BadRequestException('La charla ya está llena (sin cupos disponibles).');
+    }
+    if (charla.participantes.some((p) => p.id === userId)) {
+      throw new BadRequestException('Ya estás inscripto en esta charla.');
+    }
     return this.prisma.charla.update({
       where: { id: charlaId },
       data: {

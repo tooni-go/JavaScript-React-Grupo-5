@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -20,6 +20,13 @@ async function bootstrap() {
   
   const port = process.env.PORT || 3001;
   await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: http://0.0.0.0:${port}/api`);
+  
+  const logger = new Logger('Bootstrap');
+  logger.log(`✅ Application running: http://0.0.0.0:${port}/api`);
+  logger.log(`📝 Auth endpoints:`);
+  logger.log(`   POST /api/auth/register`);
+  logger.log(`   POST /api/auth/login`);
+  logger.log(`   POST /api/auth/logout`);
+  logger.log(`   POST /api/auth/refresh`);
 }
 bootstrap();

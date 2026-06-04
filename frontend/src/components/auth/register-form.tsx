@@ -34,6 +34,7 @@ export function RegisterForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -47,16 +48,40 @@ export function RegisterForm() {
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setLoading(true);
     setError(null);
+    setDebugInfo(null);
+
+    const apiUrl = `${getApiBase()}/auth/register`;
+    console.log("[Register] Attempting to:", apiUrl);
+    console.log("[Register] Email:", values.email);
 
     try {
-      await axios.post(`${getApiBase()}/auth/register`, {
+      const response = await axios.post(apiUrl, {
         email: values.email,
         password: values.password,
+      }, {
+        headers: { 'Content-Type': 'application/json' }
       });
+
+      console.log("[Register] Success! Response:", response.data);
 
       router.push("/auth/login?registered=true");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Ocurrió un error al registrarse");
+      console.error("[Register] Error:", err);
+      
+      let errorMsg = "Error al registrarse";
+      
+      if (err.code === "ERR_NETWORK") {
+        errorMsg = "No se puede conectar al servidor. Verifica que el backend esté corriendo.";
+      } else if (err.response?.status === 401) {
+        errorMsg = "El usuario ya existe";
+      } else if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.message) {
+        errorMsg = `Error: ${err.message}`;
+      }
+      
+      setError(errorMsg);
+      setDebugInfo(`URL: ${apiUrl} | Status: ${err.response?.status || 'Network Error'}`);
       setLoading(false);
     }
   }
@@ -111,7 +136,16 @@ export function RegisterForm() {
                 </FormItem>
               )}
             />
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            
+            {error && (
+              <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-800 text-sm">
+                <p className="font-medium">{error}</p>
+                {debugInfo && (
+                  <p className="text-xs mt-1 text-red-600 font-mono">{debugInfo}</p>
+                )}
+              </div>
+            )}
+            
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Registrando..." : "Registrarse"}
             </Button>
@@ -120,9 +154,9 @@ export function RegisterForm() {
       </CardContent>
       <CardFooter className="flex flex-col space-y-2">
         <p className="text-sm text-slate-500">
-          ¿Ya tienes cuenta?{" "}
+          ¿Ya tenés cuenta?{" "}
           <Link href="/auth/login" className="text-primary hover:underline">
-            Inicia sesión
+            Iniciá sesión
           </Link>
         </p>
       </CardFooter>

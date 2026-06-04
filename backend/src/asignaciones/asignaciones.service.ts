@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAsignacionDto, UpdateAsignacionDto } from './dto/asignacion.dto';
 
@@ -6,7 +6,22 @@ import { CreateAsignacionDto, UpdateAsignacionDto } from './dto/asignacion.dto';
 export class AsignacionesService {
   constructor(private prisma: PrismaService) {}
 
+  private validateTimeRange(horaInicio: string, horaFin: string) {
+    // Convert HH:MM to minutes for comparison
+    const [startHours, startMinutes] = horaInicio.split(':').map(Number);
+    const [endHours, endMinutes] = horaFin.split(':').map(Number);
+    
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    
+    if (endTotalMinutes <= startTotalMinutes) {
+      throw new BadRequestException('La hora de finalización debe ser posterior a la hora de inicio.');
+    }
+  }
+
   async create(dto: CreateAsignacionDto) {
+    this.validateTimeRange(dto.horaInicio, dto.horaFin);
+    
     return this.prisma.asignacion.create({
       data: dto,
       include: {
@@ -47,6 +62,12 @@ export class AsignacionesService {
 
   async update(id: number, dto: UpdateAsignacionDto) {
     const asignacion = await this.findOne(id);
+    
+    // Validate time range if both times are provided, otherwise use existing values
+    const horaInicio = dto.horaInicio ?? asignacion.horaInicio;
+    const horaFin = dto.horaFin ?? asignacion.horaFin;
+    this.validateTimeRange(horaInicio, horaFin);
+    
     return this.prisma.asignacion.update({
       where: { id },
       data: dto,

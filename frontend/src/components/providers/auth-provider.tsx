@@ -28,10 +28,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Initial session load
   useEffect(() => {
     setUser(getSession());
     setLoading(false);
   }, []);
+
+  // Listen for storage events (cross-tab sync)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "mapa_session") {
+        // Session changed in another tab, update local state
+        setUser(getSession());
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // Re-check session on window focus (in case token expired while away)
+  useEffect(() => {
+    const handleFocus = () => {
+      const currentSession = getSession();
+      // Only update if different to avoid unnecessary re-renders
+      if (JSON.stringify(currentSession) !== JSON.stringify(user)) {
+        setUser(currentSession);
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [user]);
 
   const login = useCallback((session: SessionUser) => {
     setSession(session);

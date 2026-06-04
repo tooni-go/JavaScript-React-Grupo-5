@@ -1,7 +1,7 @@
 export type SessionUser = {
   id: string;
   email: string;
-  rol: string;
+  rol: string | null;
   accessToken: string;
   refreshToken: string;
 };

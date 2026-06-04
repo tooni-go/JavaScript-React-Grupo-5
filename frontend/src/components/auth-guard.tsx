@@ -21,6 +21,11 @@ export function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
       return;
     }
 
+    if (user.rol === null || user.rol === undefined || user.rol === "") {
+      router.replace("/pendiente");
+      return;
+    }
+
     if (requireAdmin && user.rol !== "SUPERADMIN") {
       router.replace("/dashboard");
     }
@@ -34,9 +39,13 @@ export function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
     );
   }
 
-  if (!user || (requireAdmin && user.rol !== "SUPERADMIN")) {
+  if (!user) return null;
+
+  if (user.rol === null || user.rol === undefined || user.rol === "") {
     return null;
   }
+
+  if (requireAdmin && user.rol !== "SUPERADMIN") return null;
 
   return <>{children}</>;
 }
