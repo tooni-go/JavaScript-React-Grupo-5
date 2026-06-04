@@ -36,3 +36,11 @@ Thumbs.db
 # Lockfiles de otros gestores de paquetes (usamos pnpm)
 package-lock.json
 yarn.lock
+
+# Agent configuration files
+.agents/
+AGENTS.md
+
+# Configuración de agentes
+opencode.json
+opencode.jsonc
