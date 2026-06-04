@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import * as bcrypt from 'bcrypt';
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 Iniciando seed...');
+
   const adminEmail = 'admin@admin.com';
   const adminPassword = 'admin1';
 
@@ -25,9 +25,9 @@ async function main() {
     },
   });
 
-  console.log('Superadmin (upserted):', adminUser.email);
+  console.log('✅ Superadmin:', adminUser.email);
 
-  // Crear cursos Todo para probar
+  // Crear cursos
   const curso1 = await prisma.curso.upsert({
     where: { id: 1 },
     update: {},
@@ -40,7 +40,7 @@ async function main() {
     create: { nombre: '5to 2da' },
   });
 
-  console.log('Cursos creados:', curso1.nombre, curso2.nombre);
+  console.log('✅ Cursos:', curso1.nombre, curso2.nombre);
 
   // Crear materias
   const materia1 = await prisma.materia.upsert({
@@ -61,10 +61,9 @@ async function main() {
     create: { nombre: 'Física' },
   });
 
-  console.log('Materias creadas:', materia1.nombre, materia2.nombre, materia3.nombre);
+  console.log('✅ Materias:', materia1.nombre, materia2.nombre, materia3.nombre);
 
-  // Crear aulas con los IDs del SVG del usuario
-  const aulas: any[] = [];
+  // Crear aulas
   const nombresAulas = [
     'Aula-0-1',
     'Aula-0-2',
@@ -75,6 +74,7 @@ async function main() {
     'Aula-Patio-Verde',
   ];
 
+  const aulas = [];
   for (let i = 0; i < nombresAulas.length; i++) {
     const aula = await prisma.aula.upsert({
       where: { id: i + 1 },
@@ -84,7 +84,7 @@ async function main() {
     aulas.push(aula);
   }
 
-  console.log('Aulas creadas:', aulas.length, 'aulas en total');
+  console.log('✅ Aulas:', aulas.length);
 
   // Crear profesor
   const profesorUser = await prisma.user.upsert({
@@ -108,7 +108,7 @@ async function main() {
     },
   });
 
-  console.log('Profesor creado:', profesorUser.nombre);
+  console.log('✅ Profesor:', profesorUser.nombre);
 
   // Crear estudiante
   const studentUser = await prisma.user.upsert({
@@ -123,9 +123,9 @@ async function main() {
     },
   });
 
-  console.log('Estudiante creado:', studentUser.nombre);
+  console.log('✅ Estudiante:', studentUser.nombre);
 
-  // Crear usuario pendiente de aprobación
+  // Crear usuario pendiente
   const pendingUser = await prisma.user.upsert({
     where: { email: 'pendiente@poli.com' },
     update: {},
@@ -137,10 +137,10 @@ async function main() {
     },
   });
 
-  console.log('Usuario pendiente creado:', pendingUser.email);
+  console.log('✅ Usuario pendiente:', pendingUser.email);
 
   // Crear asignaciones
-  const asignacion1 = await prisma.asignacion.upsert({
+  await prisma.asignacion.upsert({
     where: { id: 1 },
     update: {},
     create: {
@@ -150,92 +150,18 @@ async function main() {
       profesorId: profesorUser.id,
       cursoId: curso1.id,
       materiaId: materia1.id,
-      aulaId: aulas[0].id, // Aula-0-1
-    },
-  });
-
-  const asignacion2 = await prisma.asignacion.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      diaSemana: 'Martes',
-      horaInicio: '08:00',
-      horaFin: '11:30',
-      profesorId: profesorUser.id,
-      cursoId: curso2.id,
-      materiaId: materia2.id,
-      aulaId: aulas[1].id, // Aula-0-2
-    },
-  });
-
-  const asignacion3 = await prisma.asignacion.upsert({
-    where: { id: 3 },
-    update: {},
-    create: {
-      diaSemana: 'Miércoles',
-      horaInicio: '09:00',
-      horaFin: '13:00',
-      profesorId: profesorUser.id,
-      cursoId: curso1.id,
-      materiaId: materia3.id,
-      aulaId: aulas[2].id, // Aula-0-3
-    },
-  });
-
-  console.log('Asignaciones creadas:', asignacion1.diaSemana, asignacion2.diaSemana, asignacion3.diaSemana);
-
-  // Crear charla
-  const charla = await prisma.charla.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      titulo: 'Introducción a la Inteligencia Artificial',
-      descripcion: 'Charla sobre los fundamentos de IA y Machine Learning',
-      capacidadMax: 50,
-      fecha: new Date('2026-06-15T00:00:00'),
-      horaInicio: '14:00',
-      horaFin: '16:00',
-      aulaId: aulas[6].id, // Aula-Patio-Verde
-      organizadorId: adminUser.id,
-    },
-  });
-
-  console.log('Charla creada:', charla.titulo);
-
-  const charla2 = await prisma.charla.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      titulo: 'Taller de Ciberseguridad',
-      descripcion: 'Aprende a proteger sistemas y datos en el mundo digital',
-      capacidadMax: 30,
-      fecha: new Date('2026-06-20T00:00:00'),
-      horaInicio: '10:00',
-      horaFin: '12:00',
       aulaId: aulas[0].id,
-      organizadorId: profesorUser.id,
     },
   });
 
-  const charla3 = await prisma.charla.upsert({
-    where: { id: 3 },
-    update: {},
-    create: {
-      titulo: 'Robótica y Automatización',
-      descripcion: 'Introducción a la robótica y sus aplicaciones en la industria',
-      capacidadMax: 25,
-      fecha: new Date('2026-07-01T00:00:00'),
-      horaInicio: '09:00',
-      horaFin: '11:30',
-      aulaId: aulas[1].id,
-      organizadorId: adminUser.id,
-    },
-  });
-
-  console.log('Charlas adicionales creadas:', charla2.titulo, '-', charla3.titulo);
-
-  console.log('Seed completado exitosamente!');
-} //Todo esto es para poblar la base de datos con datos de prueba
+  console.log('✅ Seed completado!');
+  console.log('');
+  console.log('📝 Usuarios de prueba:');
+  console.log('   Admin: admin@admin.com / admin1');
+  console.log('   Profesor: profesor@poli.com / profesor123');
+  console.log('   Alumno: alumno@poli.com / alumno123');
+  console.log('   Pendiente: pendiente@poli.com / pendiente123');
+}
 
 main()
   .catch((e) => {

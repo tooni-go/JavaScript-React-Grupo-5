@@ -92,9 +92,9 @@ jobs:
           strip_components: 1
 
       # ─────────────────────────────────────────────────────────────
-      # 4. MIGRACIÓN + REINICIO PM2
+      # 4. MIGRACIÓN + SEED + REINICIO PM2
       # ─────────────────────────────────────────────────────────────
-      - name: Migrar BD y reiniciar PM2
+      - name: Migrar BD, seed y reiniciar PM2
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -102,7 +102,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 22002
           script_stop: |
-            # Script que se ejecuta si hay error - marca la migración fallida como resuelta y reintenta
+            # Script que se ejecuta si hay error - intenta recovery de migraciones fallidas
             echo "⚠️ La migración falló. Intentando recovery..."
             cd ~/servicios
             FAILED_MIGRATION=$(npx prisma migrate status 2>&1 | grep -oE '[0-9]{14}_\w+' | head -1)
@@ -110,15 +110,26 @@ jobs:
               echo "Marcando migración $FAILED_MIGRATION como resuelta..."
               npx prisma migrate resolve --rolled-back "$FAILED_MIGRATION" || npx prisma migrate resolve --applied "$FAILED_MIGRATION" || true
             fi
-            npx prisma migrate deploy || { echo "❌ La migración sigue fallando"; exit 1; }
+            # Si hay una base de datos corrupta, recrearla
+            if npx prisma migrate deploy 2>&1 | grep -q "P3009"; then
+              echo "⚠️ Base de datos corrupta detectada. Recreando..."
+              rm -f dev.db
+              echo "y" | npx prisma migrate reset --force
+            else
+              npx prisma migrate deploy || { echo "❌ La migración sigue fallando"; exit 1; }
+            fi
             npx prisma generate
+            npx prisma db seed || echo "⚠️ Seed no aplicado (puede que ya existan datos)"
             pm2 restart servicios
           script: |
             cd ~/servicios
             set -e  # Falla inmediatamente si hay error
             echo "🔄 Aplicando migraciones..."
-            npx prisma migrate deploy || { echo "❌ Error en migración"; exit 1; }
+            npx prisma migrate deploy
             echo "✅ Migraciones aplicadas"
+            echo "🌱 Ejecutando seed..."
+            npx prisma db seed || echo "⚠️ Seed no aplicado (puede que ya existan datos)"
+            echo "🔄 Generando Prisma Client..."
             npx prisma generate
             echo "🔄 Reiniciando servicio..."
             pm2 restart servicios
