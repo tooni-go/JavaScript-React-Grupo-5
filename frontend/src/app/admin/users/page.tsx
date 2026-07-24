@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Users, Plus, Pencil, Trash2, Shield, UserCheck, Hourglass, Loader2, X, AlertTriangle } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Curso {
   id: number;
@@ -69,11 +69,6 @@ export default function UsersPage() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [confirmRejectOpen, setConfirmRejectOpen] = useState(false);
   const [userToReject, setUserToReject] = useState<UserData | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchUsers();
@@ -509,3 +504,4 @@ export default function UsersPage() {
     </div>
   );
 }
+

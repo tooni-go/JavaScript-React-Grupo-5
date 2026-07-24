@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Moon, Sun } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface AulaInfo {
   id: number;
@@ -49,6 +50,17 @@ export default function MapaInteractivo({
 }: MapaInteractivoProps) {
   const [aulaSeleccionada, setAulaSeleccionada] = useState<string | null>(null);
   const [popupCoords, setPopupCoords] = useState<{ x: number; y: number } | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    if (document.documentElement.classList.contains("dark")) setIsDark(true);
+  }, []);
+
+  const toggleTheme = () => {
+    document.documentElement.classList.toggle("dark");
+    setIsDark(!isDark);
+  };
 
   const handleAulaClick = (aulaId: string, e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -66,52 +78,78 @@ export default function MapaInteractivo({
 
   return (
     <div className="relative w-full h-full">
-      {/* Selector de Pisos Flotante Superior Izquierda */}
-      <div className="absolute top-4 left-4 z-10 bg-white dark:bg-slate-800 rounded-md shadow-md border border-gray-200 dark:border-slate-700 flex overflow-hidden">
-        {[
-          { label: "PB", value: "PB" as PisoType },
-          { label: "Piso 1", value: "Piso 1" as PisoType },
-          { label: "Piso 2", value: "Piso 2" as PisoType },
-          { label: "Piso 3", value: "Piso 3" as PisoType },
-        ].map((p) => (
-          <button
-            key={p.value}
-            onClick={() => onPisoChange(p.value)}
-            className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-              piso === p.value
-                ? "bg-primary text-primary-foreground"
-                : "bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
+      {busqueda && (
+        <style>{`
+          svg [id^="Aula-"] { transition: all 0.3s; }
+          svg [id^="Aula-"][id*="${busqueda}" i] { 
+            stroke: gold !important; 
+            stroke-width: 4px !important; 
+            fill: rgba(255, 215, 0, 0.2) !important;
+          }
+        `}</style>
+      )}
+
+      {/* Botón Tema Oscuro (Top Right) */}
+      <div className="absolute top-4 right-4 z-10">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleTheme}
+          className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-gray-200 dark:border-slate-700 shadow-md hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer"
+        >
+          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+      </div>
+      
+      {/* Controles Superiores Izquierdos */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+        {/* Selector de Pisos */}
+        <div className="bg-white dark:bg-slate-800 rounded-md shadow-md border border-gray-200 dark:border-slate-700 flex overflow-hidden">
+          {[
+            { label: "PB", value: "PB" as PisoType },
+            { label: "Piso 1", value: "Piso 1" as PisoType },
+            { label: "Piso 2", value: "Piso 2" as PisoType },
+            { label: "Piso 3", value: "Piso 3" as PisoType },
+          ].map((p) => (
+            <button
+              key={p.value}
+              onClick={() => onPisoChange(p.value)}
+              className={`px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                piso === p.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Buscador de Aulas */}
+        <div className="bg-white dark:bg-slate-800 rounded-md shadow-md border border-gray-200 dark:border-slate-700 overflow-hidden">
+          <Input 
+            value={busqueda} 
+            onChange={(e) => setBusqueda(e.target.value)} 
+            placeholder="Buscar aula..." 
+            className="border-none w-full min-w-[200px] shadow-none focus-visible:ring-0" 
+          />
+        </div>
       </div>
 
-      {/* Mapa SVG o Placeholder - Canvas Principal Full Width */}
-      <div className="w-full h-full bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 overflow-auto">
-        {piso === "PB" ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: svgContent }}
-            className="w-full h-full cursor-pointer"
-            onClick={(e) => {
-              const target = e.target as HTMLElement;
-              if (target.id && target.id.startsWith("Aula-")) {
-                handleAulaClick(target.id, e);
-              } else {
-                handleClosePopup();
-              }
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-800 rounded-lg">
-            <div className="w-full max-w-md p-12 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl text-center mx-4">
-              <p className="text-gray-500 dark:text-gray-400 font-medium text-lg">
-                Plano del Piso {piso} en desarrollo...
-              </p>
-            </div>
-          </div>
-        )}
+      {/* Mapa SVG - Canvas Principal Full Width */}
+      <div className="w-full h-full bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 overflow-auto mapa-container">
+        <div
+          dangerouslySetInnerHTML={{ __html: svgContent }}
+          className="w-full h-full cursor-pointer"
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.id && target.id.startsWith("Aula-")) {
+              handleAulaClick(target.id, e);
+            } else {
+              handleClosePopup();
+            }
+          }}
+        />
       </div>
 
       {/* Pop-up Flotante de Información del Aula */}

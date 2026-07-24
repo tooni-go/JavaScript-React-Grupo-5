@@ -13,7 +13,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Aula {
   id: number;
@@ -49,11 +49,6 @@ export default function DashboardCharlasPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchCharlas();
@@ -332,3 +327,4 @@ export default function DashboardCharlasPage() {
     </div>
   );
 }
+

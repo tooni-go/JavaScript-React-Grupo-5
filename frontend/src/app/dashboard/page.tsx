@@ -9,14 +9,13 @@ export default function DashboardPage() {
   const [svgContent, setSvgContent] = useState("");
 
   useEffect(() => {
-    // Extraer el basePath inyectado o usar vacío en local
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    // Cargar el SVG desde el directorio public respetando el basePath
-    fetch(`${basePath}/PruebaPB.svg`)
+    const archivos = { "PB": "PlantaBaja.svg", "Piso 1": "PrimerPiso.svg", "Piso 2": "SegundoPiso.svg", "Piso 3": "TercerPiso.svg" };
+    fetch(`${basePath}/${archivos[pisoActual]}`)
       .then((res) => res.text())
       .then((text) => setSvgContent(text))
       .catch((err) => console.error("Error al cargar el SVG:", err));
-  }, []);
+  }, [pisoActual]);
 
   return (
     <AuthGuard>

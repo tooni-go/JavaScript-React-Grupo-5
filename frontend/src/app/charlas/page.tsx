@@ -16,7 +16,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Aula {
   id: number;
@@ -52,11 +52,6 @@ export default function CharlasEnrollmentPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchCharlas();
@@ -348,3 +343,4 @@ export default function CharlasEnrollmentPage() {
     </AuthGuard>
   );
 }
+

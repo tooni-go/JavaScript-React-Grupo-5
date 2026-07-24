@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CalendarDays, Plus, Pencil, Trash2, Clock, MapPin, BookOpen, Users, AlertCircle } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Asignacion {
   id: number;
@@ -75,11 +75,6 @@ export default function HorariosPage() {
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchAsignaciones();
@@ -388,3 +383,4 @@ export default function HorariosPage() {
     </div>
   );
 }
+

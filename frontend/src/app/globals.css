@@ -138,3 +138,28 @@
     @apply font-sans;
   }
 }
+
+svg [id^="Aula-"] {
+  transition: all 0.2s ease-in-out;
+}
+
+svg [id^="Aula-"]:hover {
+  stroke: gold !important;
+  stroke-width: 3px !important;
+  cursor: pointer;
+}
+
+/* Variables Nativas para SVGs del Mapa */
+.mapa-container svg {
+  color: #000000;
+  fill: currentColor;
+  --svg-bg: #ffffff;
+  --svg-muted: #d1d1d1;
+}
+
+/* Modo Oscuro Nativo para SVGs del Mapa */
+.dark .mapa-container svg {
+  color: #e2e8f0;
+  --svg-bg: transparent;
+  --svg-muted: #334155;
+}

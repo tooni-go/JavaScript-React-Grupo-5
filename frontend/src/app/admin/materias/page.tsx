@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BookOpen, Plus, Pencil, Trash2 } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Asignacion {
   id: number;
@@ -51,11 +51,6 @@ export default function MateriasPage() {
   const [formData, setFormData] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchMaterias();
@@ -217,3 +212,4 @@ export default function MateriasPage() {
     </div>
   );
 }
+

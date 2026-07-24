@@ -44,7 +44,7 @@ export class UsersService {
         email: dto.email,
         password: hashedPassword,
         nombre: dto.nombre,
-        rol: dto.rol ?? null,
+        rol: dto.rol ?? undefined,
         cursoId: dto.cursoId || null,
       },
       include: {

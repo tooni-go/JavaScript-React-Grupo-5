@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MapPin, Plus, Pencil, Trash2 } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Aula {
   id: number;
@@ -56,11 +56,6 @@ export default function AulasPage() {
   const [formData, setFormData] = useState<AulaFormData>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     fetchAulas();
@@ -276,3 +271,4 @@ export default function AulasPage() {
     </div>
   );
 }
+

@@ -19,7 +19,7 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 interface Aula {
   id: number;
@@ -57,11 +57,6 @@ export default function CharlasStudentView({ open, onClose }: CharlasStudentView
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
-    headers: { Authorization: `Bearer ${user?.accessToken}` },
-  });
 
   useEffect(() => {
     if (open) {

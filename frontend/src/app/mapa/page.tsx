@@ -14,11 +14,12 @@ export default function MapaPage() {
 
   useEffect(() => {
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-    fetch(`${basePath}/PruebaPB.svg`)
+    const archivos = { "PB": "PlantaBaja.svg", "Piso 1": "PrimerPiso.svg", "Piso 2": "SegundoPiso.svg", "Piso 3": "TercerPiso.svg" };
+    fetch(`${basePath}/${archivos[pisoActual]}`)
       .then((res) => res.text())
       .then((text) => setSvgContent(text))
       .catch((err) => console.error("Error al cargar el SVG:", err));
-  }, []);
+  }, [pisoActual]);
 
   const isStudent = user?.rol === "ESTUDIANTE" || user?.rol === "PROFESOR";
   const isAdmin = user?.rol === "SUPERADMIN" || user?.rol === "ADMIN";
