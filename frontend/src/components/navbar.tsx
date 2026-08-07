@@ -29,7 +29,7 @@ export default function Navbar() {
       }
     }
     logout();
-    router.push("/auth/login");
+    window.location.href = "/auth/login";
   }
 
   // Obtener iniciales del email para el avatar

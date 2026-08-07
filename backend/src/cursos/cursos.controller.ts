@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { CursosService } from './cursos.service';
 import { CreateCursoDto, UpdateCursoDto } from './dto/curso.dto';
 
@@ -13,8 +13,8 @@ export class CursosController {
   }
 
   @Get()
-  findAll() {
-    return this.cursosService.findAll();
+  findAll(@Query('deleted') deleted?: string) {
+    return this.cursosService.findAll(deleted === 'true');
   }
 
   @Get(':id')
@@ -31,5 +31,17 @@ export class CursosController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.cursosService.remove(+id);
+  }
+
+  @Post(':id/restore')
+  @HttpCode(HttpStatus.OK)
+  restore(@Param('id') id: string) {
+    return this.cursosService.restore(+id);
+  }
+
+  @Delete(':id/hard')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  hardDelete(@Param('id') id: string) {
+    return this.cursosService.hardDelete(+id);
   }
 }

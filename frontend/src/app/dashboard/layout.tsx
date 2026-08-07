@@ -32,8 +32,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <AuthGuard>
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
-        <aside className="hidden md:flex w-56 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex min-h-[calc(100vh-4rem)] bg-slate-50 dark:bg-slate-900">
+        <aside className="sticky top-0 h-[calc(100vh-4rem)] hidden md:flex w-56 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           <div className="border-b border-slate-200 p-4 dark:border-slate-800 flex items-center gap-2">
             <div className="bg-primary/10 p-1.5 rounded-md">
               <MapPin className="h-5 w-5 text-primary" />
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </aside>
 
         <main className="flex min-w-0 flex-1 flex-col">
-          <div className="flex-1 overflow-y-auto">{children}</div>
+          <div className="flex-1">{children}</div>
         </main>
       </div>
     </AuthGuard>
