@@ -32,42 +32,66 @@ async function main() {
   console.log('✅ Superadmin:', adminUser.email);
 
   // Crear cursos
-  const curso1 = await prisma.curso.upsert({
-    where: { id: 1 },
-    update: {},
-    create: { nombre: '6to 4ta' },
-  });
+  const nombresCursos: string[] = [];
+  const sufijosComisiones = ["1ra", "2da", "3ra", "4ta", "5ta", "6ta", "7ma"];
+  const especialidades = ["Informática", "Mecánica", "Plantas Industriales", "Electrónica", "Construcciones", "Alimentos", "Química"];
+  
+  // 1ero y 2do
+  for (const anio of ["1ero", "2do"]) {
+    for (const comision of sufijosComisiones) {
+      nombresCursos.push(`${anio} ${comision}`);
+    }
+  }
+  
+  // 3ero a 6to (asumiendo 6 años)
+  for (const anio of ["3ero", "4to", "5to", "6to"]) {
+    for (const esp of especialidades) {
+      nombresCursos.push(`${anio} ${esp}`);
+    }
+  }
 
-  const curso2 = await prisma.curso.upsert({
-    where: { id: 2 },
-    update: {},
-    create: { nombre: '5to 2da' },
-  });
+  const cursosCreados: any[] = [];
+  for (let i = 0; i < nombresCursos.length; i++) {
+    const c = await prisma.curso.upsert({
+      where: { id: i + 1 },
+      update: { nombre: nombresCursos[i] },
+      create: { nombre: nombresCursos[i] },
+    });
+    cursosCreados.push(c);
+  }
 
-  console.log('✅ Cursos:', curso1.nombre, curso2.nombre);
+  const cursoInfo = cursosCreados.find(c => c.nombre === '6to Informática') || cursosCreados[0];
+
+  console.log(`✅ Cursos: ${cursosCreados.length} cargados.`);
 
   // Crear materias
-  const materia1 = await prisma.materia.upsert({
-    where: { id: 1 },
-    update: {},
-    create: { nombre: 'Programación' },
-  });
+  const nombresMaterias = [
+    'Apreciación de sistemas típicos',
+    'Prácticas profesionalizantes',
+    'Mantenimiento de software',
+    'Algoritmos y estructuras de datos',
+    'Adaptaciones del ambiente de trabajo',
+    'Lógica orientada a la computación',
+    'Instalaciones y reemplazos de hardware',
+    'Conexión de redes extendidas',
+    'Aplicaciones específicas de redes',
+    'Teoría de grafos',
+    'Asistencia sobre aplicaciones'
+  ];
 
-  const materia2 = await prisma.materia.upsert({
-    where: { id: 2 },
-    update: {},
-    create: { nombre: 'Matemática' },
-  });
+  const materias: any[] = [];
+  for (let i = 0; i < nombresMaterias.length; i++) {
+    const m = await prisma.materia.upsert({
+      where: { id: i + 1 },
+      update: { nombre: nombresMaterias[i] },
+      create: { nombre: nombresMaterias[i] },
+    });
+    materias.push(m);
+  }
 
-  const materia3 = await prisma.materia.upsert({
-    where: { id: 3 },
-    update: {},
-    create: { nombre: 'Física' },
-  });
+  console.log(`✅ Materias: ${materias.length} cargadas.`);
 
-  console.log('✅ Materias:', materia1.nombre, materia2.nombre, materia3.nombre);
-
-  // Crear aulas
+  // Crear aulas (necesarias para el SVG, dejamos algunas)
   const nombresAulas = [
     'Aula-0-1',
     'Aula-0-2',
@@ -78,7 +102,7 @@ async function main() {
     'Aula-Patio-Verde',
   ];
 
-  const aulas = [];
+  const aulas: any[] = [];
   for (let i = 0; i < nombresAulas.length; i++) {
     const aula = await prisma.aula.upsert({
       where: { id: i + 1 },
@@ -123,7 +147,7 @@ async function main() {
       password: await bcrypt.hash('alumno123', 10),
       nombre: 'Pedro Estudiante',
       rol: 'ESTUDIANTE',
-      cursoId: curso1.id,
+      cursoId: cursoInfo.id,
     },
   });
 
@@ -137,26 +161,60 @@ async function main() {
       email: 'pendiente@poli.com',
       password: await bcrypt.hash('pendiente123', 10),
       nombre: 'Ana Pendiente',
-      rol: null,
     },
   });
 
   console.log('✅ Usuario pendiente:', pendingUser.email);
 
   // Crear asignaciones
-  await prisma.asignacion.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      diaSemana: 'Lunes',
-      horaInicio: '07:30',
-      horaFin: '12:00',
-      profesorId: profesorUser.id,
-      cursoId: curso1.id,
-      materiaId: materia1.id,
-      aulaId: aulas[0].id,
-    },
-  });
+  const asignacionesData = [
+    { dia: 'Lunes', inicio: '12:40', fin: '15:00', materia: 'Mantenimiento de software' },
+    { dia: 'Lunes', inicio: '15:00', fin: '18:50', materia: 'Teoría de grafos' },
+    { dia: 'Martes', inicio: '07:30', fin: '10:30', materia: 'Apreciación de sistemas típicos' },
+    { dia: 'Martes', inicio: '14:10', fin: '16:30', materia: 'Adaptaciones del ambiente de trabajo' },
+    { dia: 'Martes', inicio: '16:30', fin: '18:10', materia: 'Lógica orientada a la computación' },
+    { dia: 'Martes', inicio: '18:10', fin: '18:50', materia: 'Algoritmos y estructuras de datos' },
+    { dia: 'Miércoles', inicio: '07:30', fin: '10:30', materia: 'Prácticas profesionalizantes' },
+    { dia: 'Miércoles', inicio: '12:40', fin: '15:40', materia: 'Algoritmos y estructuras de datos' },
+    { dia: 'Miércoles', inicio: '15:40', fin: '18:10', materia: 'Instalaciones y reemplazos de hardware' },
+    { dia: 'Jueves', inicio: '14:10', fin: '16:30', materia: 'Lógica orientada a la computación' },
+    { dia: 'Jueves', inicio: '16:30', fin: '18:10', materia: 'Conexión de redes extendidas' },
+    { dia: 'Viernes', inicio: '07:30', fin: '10:30', materia: 'Prácticas profesionalizantes' },
+    { dia: 'Viernes', inicio: '13:30', fin: '15:40', materia: 'Instalaciones y reemplazos de hardware' },
+    { dia: 'Viernes', inicio: '15:40', fin: '17:10', materia: 'Aplicaciones específicas de redes' },
+    { dia: 'Viernes', inicio: '17:10', fin: '18:50', materia: 'Asistencia sobre aplicaciones' },
+  ];
+
+  for (let i = 0; i < asignacionesData.length; i++) {
+    const data = asignacionesData[i];
+    const materiaRef = materias.find(m => m.nombre === data.materia);
+    
+    if (materiaRef) {
+      await prisma.asignacion.upsert({
+        where: { id: i + 1 },
+        update: {
+          diaSemana: data.dia,
+          horaInicio: data.inicio,
+          horaFin: data.fin,
+          profesorId: profesorUser.id,
+          cursoId: cursoInfo.id,
+          materiaId: materiaRef.id,
+          aulaId: aulas[0].id, // Asignado al aula 0-1 temporalmente
+        },
+        create: {
+          diaSemana: data.dia,
+          horaInicio: data.inicio,
+          horaFin: data.fin,
+          profesorId: profesorUser.id,
+          cursoId: cursoInfo.id,
+          materiaId: materiaRef.id,
+          aulaId: aulas[0].id,
+        },
+      });
+    }
+  }
+
+  console.log(`✅ Asignaciones: ${asignacionesData.length} creadas/actualizadas.`);
 
   console.log('✅ Seed completado!');
   console.log('');

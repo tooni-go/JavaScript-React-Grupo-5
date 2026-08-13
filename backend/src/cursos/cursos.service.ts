@@ -12,8 +12,10 @@ export class CursosService {
     });
   }
 
-  async findAll() {
+  async findAll(onlyDeleted: boolean = false) {
     return this.prisma.curso.findMany({
+      where: onlyDeleted ? { deletedAt: { not: null } } : { deletedAt: null },
+      orderBy: { nombre: 'asc' },
       include: {
         estudiantes: true,
         asignaciones: {
@@ -56,6 +58,22 @@ export class CursosService {
   }
 
   async remove(id: number) {
+    const curso = await this.findOne(id);
+    return this.prisma.curso.update({
+      where: { id },
+      data: { deletedAt: new Date() }
+    });
+  }
+
+  async restore(id: number) {
+    const curso = await this.findOne(id);
+    return this.prisma.curso.update({
+      where: { id },
+      data: { deletedAt: null }
+    });
+  }
+
+  async hardDelete(id: number) {
     const curso = await this.findOne(id);
     return this.prisma.curso.delete({
       where: { id },

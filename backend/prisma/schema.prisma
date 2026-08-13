@@ -52,6 +52,7 @@ model Profesor {
 model Curso {
   id           Int          @id @default(autoincrement())
   nombre       String       // Ej: "6to 4ta"
+  deletedAt    DateTime?
   estudiantes  User[]
   asignaciones Asignacion[]
 }

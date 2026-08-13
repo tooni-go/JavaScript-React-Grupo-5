@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import Navbar from "@/components/navbar";
+import { ScrollRestoration } from "@/components/scroll-restoration";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,10 +24,11 @@ export default function RootLayout({
     <html lang="es" className="overscroll-none">
       <body className={`${inter.variable} antialiased font-sans overscroll-none flex h-screen flex-col overflow-hidden`}>
         <AuthProvider>
+          <ScrollRestoration />
           <div className="shrink-0">
             <Navbar />
           </div>
-          <main className="flex-1 overflow-y-auto">{children}</main>
+          <main id="main-scroll-container" className="flex-1 overflow-y-auto">{children}</main>
         </AuthProvider>
       </body>
     </html>

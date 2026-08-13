@@ -1,12 +1,46 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, BookOpen, MapPin, CalendarDays } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function AdminDashboardPage() {
+  const [counts, setCounts] = useState({
+    usuarios: 0,
+    aulas: 0,
+    cursos: 0,
+    asignaciones: 0
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [usersRes, aulasRes, cursosRes, asignacionesRes] = await Promise.all([
+          api.get("/users"),
+          api.get("/aulas"),
+          api.get("/cursos"),
+          api.get("/asignaciones")
+        ]);
+
+        setCounts({
+          usuarios: usersRes.data.length || 0,
+          aulas: aulasRes.data.length || 0,
+          cursos: cursosRes.data.length || 0,
+          asignaciones: asignacionesRes.data.length || 0
+        });
+      } catch (error) {
+        console.error("Error fetching admin stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const stats = [
-    { title: "Total Usuarios", value: "150", icon: Users, description: "Alumnos y profesores" },
-    { title: "Aulas Activas", value: "12", icon: MapPin, description: "Sincronizadas del mapa" },
-    { title: "Cursos", value: "24", icon: BookOpen, description: "Gestión 2026" },
-    { title: "Asignaciones", value: "85", icon: CalendarDays, description: "Bloques horarios ocupados" },
+    { title: "Total Usuarios", value: counts.usuarios.toString(), icon: Users, description: "Alumnos y profesores" },
+    { title: "Aulas Activas", value: counts.aulas.toString(), icon: MapPin, description: "Sincronizadas del mapa" },
+    { title: "Cursos", value: counts.cursos.toString(), icon: BookOpen, description: "Gestión 2026" },
+    { title: "Asignaciones", value: counts.asignaciones.toString(), icon: CalendarDays, description: "Bloques horarios ocupados" },
   ];
 
   return (
