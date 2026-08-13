@@ -6,7 +6,7 @@ import { getApiBase } from "@/lib/api";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react";
 
 // Importación estática para que Next.js le agregue el basePath automáticamente
@@ -15,6 +15,9 @@ import logoIps from "@/../public/ips-logo.png";
 export default function Navbar() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname?.includes("/login")) return null;
 
   async function handleLogout() {
     if (user?.accessToken) {

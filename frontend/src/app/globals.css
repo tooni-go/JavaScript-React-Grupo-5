@@ -140,13 +140,7 @@
 }
 
 svg [id^="Aula-"] {
-  transition: all 0.2s ease-in-out;
-}
-
-svg [id^="Aula-"]:hover {
-  stroke: gold !important;
-  stroke-width: 3px !important;
-  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 /* Variables Nativas para SVGs del Mapa */
@@ -162,4 +156,20 @@ svg [id^="Aula-"]:hover {
   color: #e2e8f0;
   --svg-bg: transparent;
   --svg-muted: #334155;
+}
+
+/* Fix para clicks en SVG: 
+   1. Que los textos no bloqueen el click.
+   2. Que NINGUNA capa superpuesta (muros, capas de fondo, decoraciones) intercepte el click.
+   3. Que SOLO el área interior de las aulas sea clickeable. */
+.mapa-container svg * {
+  pointer-events: none;
+}
+.mapa-container svg [id^="Aula-"],
+.mapa-container svg [id^="Aula-"] * {
+  pointer-events: all;
+}
+.mapa-container svg text, 
+.mapa-container svg tspan {
+  pointer-events: none !important;
 }
